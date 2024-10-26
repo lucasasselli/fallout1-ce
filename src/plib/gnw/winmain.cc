@@ -16,6 +16,10 @@
 #include "platform/ios/paths.h"
 #endif
 
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
+
 namespace fallout {
 
 // 0x53A290
@@ -58,6 +62,12 @@ int main(int argc, char* argv[])
     chdir(SDL_AndroidGetExternalStoragePath());
 #endif
 
+#if __SWITCH__
+    chdir("sdmc:/fallout/");
+    socketInitializeDefault();
+    nxlinkStdio();
+#endif
+
     SDL_ShowCursor(SDL_DISABLE);
 
     GNW95_isActive = true;
@@ -65,6 +75,10 @@ int main(int argc, char* argv[])
 
 #if _WIN32
     CloseHandle(GNW95_mutex);
+#endif
+
+#if __SWITCH__
+    socketExit();
 #endif
 
     return rc;

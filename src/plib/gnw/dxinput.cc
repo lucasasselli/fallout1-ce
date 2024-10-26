@@ -1,5 +1,7 @@
 #include "plib/gnw/dxinput.h"
 
+#include "plib/gnw/controller.h"
+
 namespace fallout {
 
 static bool dxinput_mouse_init();
@@ -17,6 +19,10 @@ bool dxinput_init()
         return false;
     }
 
+    if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) != 0) {
+        return false;
+    }
+
     if (!dxinput_mouse_init()) {
         goto err;
     }
@@ -24,6 +30,8 @@ bool dxinput_init()
     if (!dxinput_keyboard_init()) {
         goto err;
     }
+
+    controller_init();
 
     return true;
 
@@ -38,6 +46,8 @@ err:
 void dxinput_exit()
 {
     SDL_QuitSubSystem(SDL_INIT_EVENTS);
+
+    SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 }
 
 // 0x4E04E8

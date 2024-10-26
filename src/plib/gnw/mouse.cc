@@ -1,6 +1,7 @@
 #include "plib/gnw/mouse.h"
 
 #include "plib/color/color.h"
+#include "plib/gnw/controller.h"
 #include "plib/gnw/dxinput.h"
 #include "plib/gnw/gnw.h"
 #include "plib/gnw/input.h"
@@ -481,20 +482,20 @@ void mouse_info()
     int buttons = 0;
 
     MouseData mouseData;
-    if (dxinput_get_mouse_state(&mouseData)) {
-        x = mouseData.x;
-        y = mouseData.y;
+    MouseData controllerData;
 
-        if (mouseData.buttons[0] == 1) {
-            buttons |= MOUSE_STATE_LEFT_BUTTON_DOWN;
-        }
+    dxinput_get_mouse_state(&mouseData);
+    controller_get_mouse_state(&controllerData);
 
-        if (mouseData.buttons[1] == 1) {
-            buttons |= MOUSE_STATE_RIGHT_BUTTON_DOWN;
-        }
-    } else {
-        x = 0;
-        y = 0;
+    x = mouseData.x + controllerData.x;
+    y = mouseData.y + controllerData.y;
+
+    if (mouseData.buttons[0] || controllerData.buttons[0]) {
+        buttons |= MOUSE_STATE_LEFT_BUTTON_DOWN;
+    }
+
+    if (mouseData.buttons[1] || controllerData.buttons[1]) {
+        buttons |= MOUSE_STATE_RIGHT_BUTTON_DOWN;
     }
 
     // Adjust for mouse senstivity.

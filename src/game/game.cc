@@ -59,6 +59,14 @@
 
 namespace fallout {
 
+#if __SWITCH__
+#define SCREEN_WIDTH 853
+#define SCREEN_HEIGHT 480
+#else
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
+#endif
+
 #define HELP_SCREEN_WIDTH 640
 #define HELP_SCREEN_HEIGHT 480
 
@@ -144,8 +152,8 @@ int game_init(const char* windowTitle, bool isMapper, int font, int flags, int a
     win_set_minimized_title(windowTitle);
 
     VideoOptions video_options;
-    video_options.width = 640;
-    video_options.height = 480;
+    video_options.width = SCREEN_WIDTH;
+    video_options.height = SCREEN_HEIGHT;
     video_options.fullscreen = true;
     video_options.scale = 1;
 
@@ -154,12 +162,12 @@ int game_init(const char* windowTitle, bool isMapper, int font, int flags, int a
         if (config_load(&resolutionConfig, "f1_res.ini", false)) {
             int screenWidth;
             if (config_get_value(&resolutionConfig, "MAIN", "SCR_WIDTH", &screenWidth)) {
-                video_options.width = std::max(screenWidth, 640);
+                video_options.width = std::max(screenWidth, SCREEN_WIDTH);
             }
 
             int screenHeight;
             if (config_get_value(&resolutionConfig, "MAIN", "SCR_HEIGHT", &screenHeight)) {
-                video_options.height = std::max(screenHeight, 480);
+                video_options.height = std::max(screenHeight, SCREEN_HEIGHT);
             }
 
             bool windowed;

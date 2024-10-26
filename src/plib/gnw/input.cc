@@ -7,6 +7,7 @@
 #include "platform_compat.h"
 #include "plib/color/color.h"
 #include "plib/gnw/button.h"
+#include "plib/gnw/controller.h"
 #include "plib/gnw/dxinput.h"
 #include "plib/gnw/gnw.h"
 #include "plib/gnw/grbuf.h"
@@ -17,6 +18,8 @@
 #include "plib/gnw/touch.h"
 #include "plib/gnw/vcr.h"
 #include "plib/gnw/winmain.h"
+
+#include "game/map.h"
 
 namespace fallout {
 
@@ -1087,6 +1090,7 @@ void GNW95_process_message()
 
     KeyboardData keyboardData;
     SDL_Event e;
+
     while (SDL_PollEvent(&e)) {
         switch (e.type) {
         case SDL_MOUSEMOTION:
@@ -1103,6 +1107,14 @@ void GNW95_process_message()
             break;
         case SDL_FINGERUP:
             touch_handle_end(&(e.tfinger));
+            break;
+        case SDL_CONTROLLERBUTTONDOWN:
+        case SDL_CONTROLLERBUTTONUP:
+            if (!kb_is_disabled()) {
+                keyboardData.key = controller_button_to_scancode(e.cbutton.button);
+                keyboardData.down = (e.cbutton.state & SDL_PRESSED) != 0;
+                GNW95_process_key(&keyboardData);
+            }
             break;
         case SDL_KEYDOWN:
         case SDL_KEYUP:
@@ -1131,6 +1143,9 @@ void GNW95_process_message()
                 audioEnginePause();
                 break;
             }
+        case SDL_CONTROLLERDEVICEREMOVED:
+        case SDL_CONTROLLERDEVICEADDED:
+            controller_init();
             break;
         case SDL_QUIT:
             exit(EXIT_SUCCESS);
@@ -1139,6 +1154,10 @@ void GNW95_process_message()
     }
 
     touch_process_gesture();
+
+    int mapXScroll = controller_axis_get(SDL_CONTROLLER_AXIS_RIGHTX);
+    int mapYScroll = controller_axis_get(SDL_CONTROLLER_AXIS_RIGHTY);
+    map_scroll(mapXScroll, mapYScroll);
 
     if (GNW95_isActive && !kb_is_disabled()) {
         // NOTE: Uninline

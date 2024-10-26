@@ -19,9 +19,15 @@ project(${EXECUTABLE_NAME})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(ASAN "Enable address sanitizer" OFF)
 option(UBSAN "Enable undefined behaviour sanitizer" OFF)
+
+
+if (SWITCH)
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/switch)
+endif()
 
 if (ANDROID)
     add_library(${EXECUTABLE_NAME} SHARED)
@@ -225,6 +231,8 @@ target_sources(${EXECUTABLE_NAME} PUBLIC
     "src/plib/db/lzss.h"
     "src/plib/gnw/button.cc"
     "src/plib/gnw/button.h"
+    "src/plib/gnw/controller.cc"
+    "src/plib/gnw/controller.h"
     "src/plib/gnw/debug.cc"
     "src/plib/gnw/debug.h"
     "src/plib/gnw/dxinput.cc"
@@ -347,8 +355,31 @@ if(APPLE)
     set(MACOSX_BUNDLE_BUNDLE_VERSION "1.0.0")
 endif()
 
+if(SWITCH)
+    # SwitchTools provide various helper functions for building Switch file formats.
+    include(SwitchTools)
+
+    # Find libnx, which is required by our application.
+    find_package(LIBNX REQUIRED)
+
+    # Next, we need to set the required target properties
+    # so CMake can detect the metadata for the application.
+    set_target_properties(${EXECUTABLE_NAME} PROPERTIES
+        APP_TITLE "Fallout: Community Edition"
+        APP_AUTHOR "Alex Batalov"
+        APP_VERSION "1.0.0"
+        ICON ${CMAKE_SOURCE_DIR}/os/switch/icon.jpg)
+
+    # Then, we link the required libraries (libnx) against the executable.
+    target_link_libraries(${EXECUTABLE_NAME} switch::libnx)
+
+
+    # And finally we can add the actual binary (.nro) target.
+    add_nro_target(${EXECUTABLE_NAME})
+endif()
+
 if((NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux") AND (NOT ${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD") AND (NOT ${CMAKE_SYSTEM_NAME} MATCHES "OpenBSD"))
-    add_subdirectory("third_party/sdl2")
+    find_package(SDL2)
 else()
     find_package(SDL2)
 endif()

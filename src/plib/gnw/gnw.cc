@@ -16,6 +16,10 @@
 #include "plib/gnw/vcr.h"
 #include "plib/gnw/winmain.h"
 
+#if __SWITCH__
+#include <switch.h>
+#endif
+
 namespace fallout {
 
 #define MAX_WINDOW_COUNT 50
@@ -1319,6 +1323,11 @@ static int colorClose(void* handle)
 // 0x4C42B8
 bool GNWSystemError(const char* text)
 {
+#if __SWITCH__
+    ErrorSystemConfig cfg;
+    errorSystemCreate(&cfg, text, nullptr);
+    errorSystemShow(&cfg);
+#else
     SDL_Cursor* prev = SDL_GetCursor();
     SDL_Cursor* cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
     SDL_SetCursor(cursor);
@@ -1327,6 +1336,7 @@ bool GNWSystemError(const char* text)
     SDL_ShowCursor(SDL_DISABLE);
     SDL_SetCursor(prev);
     SDL_FreeCursor(cursor);
+#endif
     return true;
 }
 

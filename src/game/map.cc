@@ -716,6 +716,11 @@ int map_scroll(int dx, int dy)
         return -2;
     }
 
+    if (dx > 1) dx = 1;
+    if (dy > 1) dy = 1;
+    if (dx < -1) dx = -1;
+    if (dy < -1) dy = -1;
+
     map_last_scroll_time = get_time();
 
     int screenDx = dx * 32;

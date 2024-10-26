@@ -390,4 +390,5 @@ FodyWeavers.xsd
 
 # CMake
 /out
-/build
+/build*
+compile_commands.json
