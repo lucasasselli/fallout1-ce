@@ -1,5 +1,6 @@
 #include "plib/gnw/controller.h"
 
+#include "plib/gnw/debug.h"
 #include "plib/gnw/mouse.h"
 
 #define CONTROLLER_AXIS_DEADZONE 0.1
@@ -18,7 +19,9 @@ void controller_init()
 
     for (int i = 0; i < SDL_NumJoysticks(); ++i) {
         if (SDL_IsGameController(i)) {
+            debug_printf("Controller %0d found!", i);
             controller = SDL_GameControllerOpen(i);
+            break;
         }
     }
 }
