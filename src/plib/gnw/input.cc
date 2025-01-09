@@ -8,6 +8,7 @@
 #include "plib/color/color.h"
 #include "plib/gnw/button.h"
 #include "plib/gnw/controller.h"
+#include "plib/gnw/debug.h"
 #include "plib/gnw/dxinput.h"
 #include "plib/gnw/gnw.h"
 #include "plib/gnw/grbuf.h"
@@ -124,6 +125,8 @@ static bool bk_disabled;
 
 // 0x671F08
 static unsigned int bk_process_time;
+
+static char text_input_buffer[SDL_TEXTINPUTEVENT_TEXT_SIZE];
 
 // 0x4B32C0
 int GNW_input_init(int use_msec_timer)
@@ -1124,6 +1127,12 @@ void GNW95_process_message()
                 GNW95_process_key(&keyboardData);
             }
             break;
+#if __SWITCH__
+        case SDL_TEXTINPUT:
+            debug_printf("Text input: %s", e.text.text);
+            strcpy(text_input_buffer, e.text.text);
+            break;
+#endif
         case SDL_WINDOWEVENT:
             switch (e.window.event) {
             case SDL_WINDOWEVENT_EXPOSED:
@@ -1246,8 +1255,14 @@ static void idleImpl()
     SDL_Delay(125);
 }
 
+char* getTextInput()
+{
+    return text_input_buffer;
+}
+
 void beginTextInput()
 {
+    text_input_buffer[0] = '\0';
     SDL_StartTextInput();
 }
 

@@ -2220,6 +2220,22 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
             v1++;
         }
 
+#if __SWITCH__
+        if (keyCode == doneKeyCode || keyCode == KEY_RETURN) {
+            rc = 0;
+        } else if (keyCode == cancelKeyCode || keyCode == KEY_ESCAPE) {
+            rc = -1;
+        } else {
+            buf_fill(windowBuffer + windowWidth * y + x, text_width(text), lineHeight, windowWidth, backgroundColor);
+            strcpy(text, getTextInput());
+            textLength = strlen(text);
+            text[textLength] = ' ';
+            text[textLength + 1] = '\0';
+            text_to_buf(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
+
+            win_draw(win);
+        }
+#else
         if (keyCode == doneKeyCode || keyCode == KEY_RETURN) {
             rc = 0;
         } else if (keyCode == cancelKeyCode || keyCode == KEY_ESCAPE) {
@@ -2235,6 +2251,7 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
 
                 text[textLength - 1] = ' ';
                 text[textLength] = '\0';
+
                 text_to_buf(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
                 textLength--;
             } else if ((keyCode >= KEY_FIRST_INPUT_CHARACTER && keyCode <= KEY_LAST_INPUT_CHARACTER) && textLength < maxLength) {
@@ -2255,6 +2272,7 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
                 win_draw(win);
             }
         }
+#endif
 
         blinkCounter -= 1;
         if (blinkCounter == 0) {

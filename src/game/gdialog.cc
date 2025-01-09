@@ -3821,6 +3821,13 @@ static void about_loop()
     while (1) {
         sharedFpsLimiter.mark();
 
+#if __SWITCH__
+        strcpy(about_input_string, getTextInput());
+        about_input_index = strlen(about_input_string) + 1;
+        about_input_string[about_input_index] = about_input_cursor;
+        about_input_string[about_input_index + 1] = '\0';
+#endif
+
         if (about_process_input(get_input()) == -1) {
             break;
         }
@@ -3866,6 +3873,7 @@ static int about_process_input(int input)
         }
         return -1;
     default:
+#ifndef __SWITCH__
         if (input >= 0 && about_input_index < 126) {
             text_font(101);
             about_input_string[about_input_index] = '_';
@@ -3880,6 +3888,7 @@ static int about_process_input(int input)
 
             about_input_string[about_input_index] = about_input_cursor;
         }
+#endif
         break;
     }
 
